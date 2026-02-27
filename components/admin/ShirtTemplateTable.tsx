@@ -37,8 +37,9 @@ export function ShirtTemplateTable({
             <TableHead>Name</TableHead>
             <TableHead>Product Type</TableHead>
             <TableHead>View</TableHead>
-            <TableHead>Canvas Size</TableHead>
-            <TableHead>Printable Area</TableHead>
+            <TableHead>Canvas</TableHead>
+            <TableHead>Shirt</TableHead>
+            <TableHead>Printable</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -46,7 +47,7 @@ export function ShirtTemplateTable({
         <TableBody>
           {templates.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
+              <TableCell colSpan={9} className="h-32 text-center text-muted-foreground">
                 No shirt templates found
               </TableCell>
             </TableRow>

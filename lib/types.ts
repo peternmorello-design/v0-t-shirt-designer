@@ -18,8 +18,16 @@ export interface ShirtTemplate {
   product_type: string
   view: 'front' | 'back'
   image_url: string
+  // Canvas dimensions (overall workspace)
   canvas_width: number
   canvas_height: number
+  // Shirt image pixel dimensions (independent from canvas)
+  shirt_pixel_width: number
+  shirt_pixel_height: number
+  // Shirt position offset on canvas
+  shirt_offset_x: number
+  shirt_offset_y: number
+  // Printable area relative to shirt (not canvas)
   printable_x: number
   printable_y: number
   printable_width: number
