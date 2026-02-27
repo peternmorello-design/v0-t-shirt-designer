@@ -21,8 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { Upload, Image as ImageIcon, X } from 'lucide-react'
-import Image from 'next/image'
+import { ImageUploader } from './ImageUploader'
 
 // Get categories from store
 import { templateCategories as categories } from '@/lib/store'
@@ -53,8 +52,6 @@ export function AdminTemplateEditor({
       enabled: true,
     }
   )
-  const [dragOver, setDragOver] = useState(false)
-
   // Reset form when template changes
   useState(() => {
     if (template) {
@@ -74,35 +71,8 @@ export function AdminTemplateEditor({
     }
   })
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-
-    const file = e.dataTransfer.files[0]
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setFormData((prev) => ({
-          ...prev,
-          image_url: event.target?.result as string,
-        }))
-      }
-      reader.readAsDataURL(file)
-    }
-  }, [])
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setFormData((prev) => ({
-          ...prev,
-          image_url: event.target?.result as string,
-        }))
-      }
-      reader.readAsDataURL(file)
-    }
+  const handleImageChange = useCallback((url: string) => {
+    setFormData((prev) => ({ ...prev, image_url: url }))
   }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -139,59 +109,12 @@ export function AdminTemplateEditor({
           {/* Image Upload */}
           <div className="space-y-2">
             <Label>Template Image</Label>
-            <div
-              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                dragOver
-                  ? 'border-accent bg-accent/5'
-                  : 'border-border hover:border-muted-foreground'
-              }`}
-              onDragOver={(e) => {
-                e.preventDefault()
-                setDragOver(true)
-              }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-            >
-              {formData.image_url ? (
-                <div className="relative w-32 h-32 mx-auto">
-                  <Image
-                    src={formData.image_url}
-                    alt="Template preview"
-                    fill
-                    className="object-contain"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full"
-                    onClick={() => setFormData((prev) => ({ ...prev, image_url: '' }))}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="w-12 h-12 mx-auto bg-muted rounded-full flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">
-                      Drag and drop an image here
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      or click to browse
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                </div>
-              )}
-            </div>
+            <ImageUploader
+              value={formData.image_url || ''}
+              onChange={handleImageChange}
+              folder="design-templates"
+              label="Upload Design Template Image"
+            />
           </div>
 
           {/* Name & Category */}

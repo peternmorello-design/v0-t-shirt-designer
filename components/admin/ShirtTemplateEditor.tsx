@@ -19,8 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Upload, X, Move, Maximize2 } from 'lucide-react'
+import { X, Move, Maximize2 } from 'lucide-react'
 import Image from 'next/image'
+import { ImageUploader } from './ImageUploader'
 
 interface ShirtTemplateEditorProps {
   template: ShirtTemplate | null
@@ -78,29 +79,36 @@ export function ShirtTemplateEditor({
     }
   }, [template, open])
 
-  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUploading, setIsUploading] = useState(false)
+  const replaceInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageChange = useCallback((url: string) => {
+    setFormData((prev) => ({ ...prev, image_url: url }))
+  }, [])
+
+  const handleReplaceFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string
-      setFormData((prev) => ({ ...prev, image_url: dataUrl }))
-    }
-    reader.readAsDataURL(file)
-  }, [])
+    setIsUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'shirt-templates')
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    const file = e.dataTransfer.files[0]
-    if (!file || !file.type.startsWith('image/')) return
-
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string
-      setFormData((prev) => ({ ...prev, image_url: dataUrl }))
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Upload failed')
+      }
+      const data = await res.json()
+      setFormData((prev) => ({ ...prev, image_url: data.url }))
+    } catch (err) {
+      console.error('Replace upload error:', err)
+    } finally {
+      setIsUploading(false)
+      if (replaceInputRef.current) replaceInputRef.current.value = ''
     }
-    reader.readAsDataURL(file)
   }, [])
 
   // Calculate scale factor for preview
@@ -428,36 +436,43 @@ export function ShirtTemplateEditor({
 
             {/* Image Upload */}
             {!formData.image_url && (
-              <div
-                className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors"
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                onClick={() => document.getElementById('shirt-image-upload')?.click()}
-              >
-                <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-sm font-medium">Drop shirt image here</p>
-                <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
-                <input
-                  id="shirt-image-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-              </div>
+              <ImageUploader
+                value={formData.image_url}
+                onChange={handleImageChange}
+                folder="shirt-templates"
+                label="Upload Shirt Template Image"
+              />
             )}
 
             {/* Canvas Preview with Boundaries */}
             {formData.image_url && (
               <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 z-20 bg-background/80"
-                  onClick={() => setFormData((prev) => ({ ...prev, image_url: '' }))}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="absolute top-2 right-2 z-20 flex gap-1.5">
+                  <input
+                    ref={replaceInputRef}
+                    type="file"
+                    accept=".png,.jpg,.jpeg,.webp"
+                    className="hidden"
+                    onChange={handleReplaceFile}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 bg-background/90 hover:bg-background shadow-sm"
+                    onClick={() => replaceInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? 'Uploading...' : 'Replace Image'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="bg-background/80 h-8 w-8"
+                    onClick={() => setFormData((prev) => ({ ...prev, image_url: '' }))}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
 
                 {/* Measurement Overlay */}
                 <div className="absolute top-2 left-2 z-20 bg-foreground/90 text-background text-xs p-3 rounded-lg space-y-1.5 font-mono">
