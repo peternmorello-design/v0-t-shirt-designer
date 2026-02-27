@@ -159,22 +159,38 @@ export function ShirtCanvas({
             />
           ) : (
             <svg
-              viewBox="0 0 400 500"
+              viewBox="0 0 600 700"
               className="absolute inset-0 w-full h-full"
               style={{ pointerEvents: 'none' }}
             >
-              {/* Default T-Shirt Shape */}
+              {/* Default Sweatshirt Shape */}
               <path
-                d="M80 80 L50 130 L90 140 L90 450 L310 450 L310 140 L350 130 L320 80 L260 80 L240 100 Q200 120 160 100 L140 80 Z"
-                fill="#F5F5F5"
-                stroke="#e5e5e5"
-                strokeWidth="2"
+                d="M145 115 Q100 140 65 220 Q40 280 35 340 Q33 360 50 365 L85 370 Q95 370 100 355 Q110 310 125 260 Q135 225 148 195"
+                fill="#F7F5F2"
+                stroke="#1a1a1a"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
               />
               <path
-                d="M160 80 L140 80 L160 100 Q200 120 240 100 L260 80 L240 80 Q200 100 160 80"
-                fill="#EEEEEE"
-                stroke="#e5e5e5"
-                strokeWidth="1"
+                d="M455 115 Q500 140 535 220 Q560 280 565 340 Q567 360 550 365 L515 370 Q505 370 500 355 Q490 310 475 260 Q465 225 452 195"
+                fill="#F7F5F2"
+                stroke="#1a1a1a"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M145 115 Q148 195 155 260 L155 590 Q155 610 175 615 L210 620 L390 620 L425 615 Q445 610 445 590 L445 260 Q452 195 455 115 Q430 95 390 82 Q355 72 340 72 L260 72 Q245 72 210 82 Q170 95 145 115Z"
+                fill="#F7F5F2"
+                stroke="#1a1a1a"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M210 82 Q230 68 260 62 Q290 58 310 58 Q340 62 360 68 Q380 75 390 82"
+                fill="none"
+                stroke="#1a1a1a"
+                strokeWidth="2.5"
+                strokeLinecap="round"
               />
             </svg>
           )}

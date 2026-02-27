@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700" width="600" height="700">
+  <defs>
+    <linearGradient id="bodyShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.15"/>
+      <stop offset="15%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <!-- Left Sleeve -->
+  <path d="M145 115 Q100 140 65 220 Q40 280 35 340 Q33 360 50 365 L85 370 Q95 370 100 355 Q110 310 125 260 Q135 225 148 195" fill="#B0B0B0" stroke="#888888" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Right Sleeve -->
+  <path d="M455 115 Q500 140 535 220 Q560 280 565 340 Q567 360 550 365 L515 370 Q505 370 500 355 Q490 310 475 260 Q465 225 452 195" fill="#B0B0B0" stroke="#888888" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Main Body -->
+  <path d="M145 115 Q148 195 155 260 L155 590 Q155 610 175 615 L210 620 L390 620 L425 615 Q445 610 445 590 L445 260 Q452 195 455 115 Q430 95 390 82 Q355 72 340 72 L260 72 Q245 72 210 82 Q170 95 145 115Z" fill="#B0B0B0" stroke="#888888" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Body shading overlay -->
+  <path d="M145 115 Q148 195 155 260 L155 590 Q155 610 175 615 L210 620 L390 620 L425 615 Q445 610 445 590 L445 260 Q452 195 455 115 Q430 95 390 82 Q355 72 340 72 L260 72 Q245 72 210 82 Q170 95 145 115Z" fill="url(#bodyShade)"/>
+  <!-- Neckline -->
+  <path d="M210 82 Q230 68 260 62 Q290 58 310 58 Q340 62 360 68 Q380 75 390 82" fill="none" stroke="#888888" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Waistband -->
+  <rect x="155" y="590" width="290" height="30" rx="2" fill="none" stroke="#888888" stroke-width="1.5" opacity="0.5"/>
+  <!-- Left Cuff -->
+  <rect x="35" y="340" width="65" height="28" rx="2" fill="none" stroke="#888888" stroke-width="1.5" opacity="0.5"/>
+  <!-- Right Cuff -->
+  <rect x="500" y="340" width="65" height="28" rx="2" fill="none" stroke="#888888" stroke-width="1.5" opacity="0.5"/>
+  <!-- Sleeve seam lines -->
+  <path d="M148 195 Q152 200 155 210" fill="none" stroke="#888888" stroke-width="1.5" opacity="0.3"/>
+  <path d="M452 195 Q448 200 445 210" fill="none" stroke="#888888" stroke-width="1.5" opacity="0.3"/>
+</svg>
