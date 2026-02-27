@@ -12,6 +12,32 @@ export interface Template {
   created_at: string
 }
 
+export interface ShirtTemplate {
+  id: string
+  name: string
+  product_type: string
+  view: 'front' | 'back'
+  image_url: string
+  canvas_width: number
+  canvas_height: number
+  printable_x: number
+  printable_y: number
+  printable_width: number
+  printable_height: number
+  enabled: boolean
+  created_at: string
+}
+
+export const PRODUCT_TYPES = [
+  'T-Shirt',
+  'Hoodie',
+  'Long Sleeve',
+  'Tank Top',
+  'Sweatshirt',
+] as const
+
+export type ProductType = (typeof PRODUCT_TYPES)[number]
+
 export interface PlacedTemplate {
   id: string
   templateId: string
@@ -29,21 +55,15 @@ export interface Design {
 }
 
 export interface DesignState {
+  shirtTemplateId: string | null
   placedTemplates: PlacedTemplate[]
   selectedTemplateId: string | null
   shirtColor: string
   view: 'front' | 'back'
 }
 
-export const SHIRT_COLORS = [
-  { name: 'White', value: '#FFFFFF' },
-  { name: 'Black', value: '#1a1a1a' },
-  { name: 'Navy', value: '#1e3a5f' },
-  { name: 'Gray', value: '#6b7280' },
-  { name: 'Red', value: '#dc2626' },
-  { name: 'Forest', value: '#166534' },
-] as const
-
+// Legacy constants - kept for backwards compatibility with old saved designs
+// New designs use ShirtTemplate for these values
 export const PRINTABLE_AREA = {
   x: 85,
   y: 120,

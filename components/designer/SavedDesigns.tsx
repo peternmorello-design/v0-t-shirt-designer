@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { DesignState, Template } from '@/lib/types'
+import { DesignState, Template, ShirtTemplate } from '@/lib/types'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
@@ -11,7 +12,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { FolderOpen, Trash2, Clock } from 'lucide-react'
+import { FolderOpen, Trash2, Clock, Shirt } from 'lucide-react'
+import Image from 'next/image'
 
 interface SavedDesign extends DesignState {
   id: string
@@ -20,6 +22,7 @@ interface SavedDesign extends DesignState {
 
 interface SavedDesignsProps {
   templates: Template[]
+  shirtTemplates: ShirtTemplate[]
   onLoadDesign: (design: DesignState) => void
 }
 
@@ -59,7 +62,7 @@ export function deleteDesignFromStorage(id: string): void {
   localStorage.setItem(SAVED_DESIGNS_KEY, JSON.stringify(filtered))
 }
 
-export function SavedDesigns({ templates, onLoadDesign }: SavedDesignsProps) {
+export function SavedDesigns({ templates, shirtTemplates, onLoadDesign }: SavedDesignsProps) {
   const [designs, setDesigns] = useState<SavedDesign[]>([])
   const [open, setOpen] = useState(false)
 
@@ -90,6 +93,11 @@ export function SavedDesigns({ templates, onLoadDesign }: SavedDesignsProps) {
     })
   }
 
+  const getShirtTemplate = (shirtTemplateId: string | null) => {
+    if (!shirtTemplateId) return null
+    return shirtTemplates.find((t) => t.id === shirtTemplateId)
+  }
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -114,70 +122,89 @@ export function SavedDesigns({ templates, onLoadDesign }: SavedDesignsProps) {
             </div>
           ) : (
             <div className="space-y-3 pr-4">
-              {designs.map((design) => (
-                <div
-                  key={design.id}
-                  className="bg-secondary rounded-xl p-4 space-y-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-sm">
-                        {design.placedTemplates.length} template
-                        {design.placedTemplates.length !== 1 ? 's' : ''}
-                      </p>
-                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(design.savedAt)}
+              {designs.map((design) => {
+                const shirtTemplate = getShirtTemplate(design.shirtTemplateId)
+                return (
+                  <div
+                    key={design.id}
+                    className="bg-secondary rounded-xl p-4 space-y-3"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {shirtTemplate && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-10 h-12 bg-background rounded overflow-hidden relative">
+                              <Image
+                                src={shirtTemplate.image_url}
+                                alt={shirtTemplate.name}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium text-sm">{shirtTemplate.name}</p>
+                              <Badge variant="outline" className="text-[10px]">
+                                {shirtTemplate.product_type}
+                              </Badge>
+                            </div>
+                          </div>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          {design.placedTemplates.length} design
+                          {design.placedTemplates.length !== 1 ? 's' : ''} placed
+                        </p>
+                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          {formatDate(design.savedAt)}
+                        </div>
                       </div>
                     </div>
-                    <div
-                      className="w-8 h-8 rounded-lg border-2 border-border"
-                      style={{ backgroundColor: design.shirtColor }}
-                    />
-                  </div>
 
-                  {/* Template previews */}
-                  <div className="flex flex-wrap gap-2">
-                    {design.placedTemplates.slice(0, 4).map((placed) => {
-                      const template = templates.find(
-                        (t) => t.id === placed.templateId
-                      )
-                      if (!template) return null
-                      return (
-                        <div
-                          key={placed.id}
-                          className="px-2 py-1 bg-background rounded text-xs"
-                        >
-                          {template.name}
-                        </div>
-                      )
-                    })}
-                    {design.placedTemplates.length > 4 && (
-                      <div className="px-2 py-1 bg-muted rounded text-xs text-muted-foreground">
-                        +{design.placedTemplates.length - 4} more
+                    {/* Template previews */}
+                    {design.placedTemplates.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {design.placedTemplates.slice(0, 4).map((placed) => {
+                          const template = templates.find(
+                            (t) => t.id === placed.templateId
+                          )
+                          if (!template) return null
+                          return (
+                            <div
+                              key={placed.id}
+                              className="px-2 py-1 bg-background rounded text-xs"
+                            >
+                              {template.name}
+                            </div>
+                          )
+                        })}
+                        {design.placedTemplates.length > 4 && (
+                          <div className="px-2 py-1 bg-muted rounded text-xs text-muted-foreground">
+                            +{design.placedTemplates.length - 4} more
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
 
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleLoad(design)}
-                      className="flex-1"
-                    >
-                      Load Design
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(design.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleLoad(design)}
+                        className="flex-1"
+                      >
+                        Load Design
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(design.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </ScrollArea>

@@ -12,9 +12,10 @@ import Image from 'next/image'
 interface TemplateLibraryProps {
   templates: Template[]
   onAddTemplate: (template: Template) => void
+  disabled?: boolean
 }
 
-export function TemplateLibrary({ templates, onAddTemplate }: TemplateLibraryProps) {
+export function TemplateLibrary({ templates, onAddTemplate, disabled }: TemplateLibraryProps) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -26,7 +27,14 @@ export function TemplateLibrary({ templates, onAddTemplate }: TemplateLibraryPro
   })
 
   return (
-    <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+    <div className="relative flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+      {disabled && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
+          <p className="text-sm text-muted-foreground text-center px-4">
+            Select a product first to add designs
+          </p>
+        </div>
+      )}
       {/* Header */}
       <div className="p-4 border-b border-border">
         <h2 className="font-semibold text-foreground mb-3">Template Library</h2>

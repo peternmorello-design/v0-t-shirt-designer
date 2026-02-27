@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Template } from '@/lib/types'
-import { getStoredTemplates, saveTemplates, generateId } from '@/lib/store'
-import { AdminTemplateTable } from '@/components/admin/AdminTemplateTable'
-import { AdminTemplateEditor } from '@/components/admin/AdminTemplateEditor'
+import { ShirtTemplate } from '@/lib/types'
+import { getStoredShirtTemplates, saveShirtTemplates, generateId } from '@/lib/store'
+import { ShirtTemplateTable } from '@/components/admin/ShirtTemplateTable'
+import { ShirtTemplateEditor } from '@/components/admin/ShirtTemplateEditor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,39 +17,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Shirt, Plus, Search, ArrowLeft, Image } from 'lucide-react'
+import { Shirt, Plus, Search, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
-export default function AdminPage() {
-  const [templates, setTemplates] = useState<Template[]>([])
+export default function ShirtTemplatesPage() {
+  const [templates, setTemplates] = useState<ShirtTemplate[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
+  const [editingTemplate, setEditingTemplate] = useState<ShirtTemplate | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
-    setTemplates(getStoredTemplates())
+    setTemplates(getStoredShirtTemplates())
   }, [])
 
   const filteredTemplates = templates.filter((template) =>
     template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    template.category.toLowerCase().includes(searchQuery.toLowerCase())
+    template.product_type.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleSaveTemplate = useCallback((template: Template) => {
+  const handleSaveTemplate = useCallback((template: ShirtTemplate) => {
     setTemplates((prev) => {
       const exists = prev.find((t) => t.id === template.id)
-      let updated: Template[]
+      let updated: ShirtTemplate[]
       if (exists) {
         updated = prev.map((t) => (t.id === template.id ? template : t))
-        toast.success('Template updated successfully')
+        toast.success('Shirt template updated successfully')
       } else {
         updated = [...prev, template]
-        toast.success('Template added successfully')
+        toast.success('Shirt template added successfully')
       }
-      saveTemplates(updated)
+      saveShirtTemplates(updated)
       return updated
     })
     setEditingTemplate(null)
@@ -59,17 +59,17 @@ export default function AdminPage() {
   const handleDeleteTemplate = useCallback((id: string) => {
     setTemplates((prev) => {
       const updated = prev.filter((t) => t.id !== id)
-      saveTemplates(updated)
+      saveShirtTemplates(updated)
       return updated
     })
     setDeleteId(null)
-    toast.success('Template deleted')
+    toast.success('Shirt template deleted')
   }, [])
 
   const handleToggleEnabled = useCallback((id: string, enabled: boolean) => {
     setTemplates((prev) => {
       const updated = prev.map((t) => (t.id === id ? { ...t, enabled } : t))
-      saveTemplates(updated)
+      saveShirtTemplates(updated)
       return updated
     })
     toast.success(enabled ? 'Template enabled' : 'Template disabled')
@@ -80,10 +80,13 @@ export default function AdminPage() {
     setIsEditorOpen(true)
   }, [])
 
-  const handleEdit = useCallback((template: Template) => {
+  const handleEdit = useCallback((template: ShirtTemplate) => {
     setEditingTemplate(template)
     setIsEditorOpen(true)
   }, [])
+
+  // Get unique product types
+  const productTypes = [...new Set(templates.map((t) => t.product_type))]
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,36 +94,30 @@ export default function AdminPage() {
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/">
+            <Link href="/admin">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Designer
+                Back to Admin
               </Button>
             </Link>
             <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <Shirt className="w-5 h-5 text-primary-foreground" />
+              <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
+                <Shirt className="w-5 h-5 text-accent-foreground" />
               </div>
               <div>
-                <h1 className="font-semibold text-foreground">Admin Dashboard</h1>
-                <p className="text-xs text-muted-foreground">Manage templates</p>
+                <h1 className="font-semibold text-foreground">Shirt Templates</h1>
+                <p className="text-xs text-muted-foreground">Manage base product mockups</p>
               </div>
             </div>
           </div>
-          <Link href="/admin/shirt-templates">
-            <Button variant="outline" size="sm">
-              <Image className="w-4 h-4 mr-2" />
-              Shirt Templates
-            </Button>
-          </Link>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-6">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card rounded-2xl border border-border p-6">
             <p className="text-sm text-muted-foreground">Total Templates</p>
             <p className="text-3xl font-semibold mt-1">{templates.length}</p>
@@ -132,9 +129,13 @@ export default function AdminPage() {
             </p>
           </div>
           <div className="bg-card rounded-2xl border border-border p-6">
-            <p className="text-sm text-muted-foreground">Categories</p>
+            <p className="text-sm text-muted-foreground">Product Types</p>
+            <p className="text-3xl font-semibold mt-1">{productTypes.length}</p>
+          </div>
+          <div className="bg-card rounded-2xl border border-border p-6">
+            <p className="text-sm text-muted-foreground">Front/Back Views</p>
             <p className="text-3xl font-semibold mt-1">
-              {new Set(templates.map((t) => t.category)).size}
+              {templates.filter((t) => t.view === 'front').length} / {templates.filter((t) => t.view === 'back').length}
             </p>
           </div>
         </div>
@@ -144,7 +145,7 @@ export default function AdminPage() {
           <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search templates..."
+              placeholder="Search shirt templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -152,12 +153,12 @@ export default function AdminPage() {
           </div>
           <Button onClick={handleAddNew}>
             <Plus className="w-4 h-4 mr-2" />
-            Add Template
+            Add Shirt Template
           </Button>
         </div>
 
         {/* Table */}
-        <AdminTemplateTable
+        <ShirtTemplateTable
           templates={filteredTemplates}
           onEdit={handleEdit}
           onDelete={(id) => setDeleteId(id)}
@@ -166,7 +167,7 @@ export default function AdminPage() {
       </main>
 
       {/* Editor Dialog */}
-      <AdminTemplateEditor
+      <ShirtTemplateEditor
         template={editingTemplate}
         open={isEditorOpen}
         onClose={() => {
@@ -180,9 +181,10 @@ export default function AdminPage() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Template</AlertDialogTitle>
+            <AlertDialogTitle>Delete Shirt Template</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this template? This action cannot be undone.
+              Are you sure you want to delete this shirt template? This action cannot be undone.
+              Saved designs using this template may no longer display correctly.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

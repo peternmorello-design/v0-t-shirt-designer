@@ -1,34 +1,31 @@
 'use client'
 
-import { PlacedTemplate, Template, SHIRT_COLORS, PRINTABLE_AREA } from '@/lib/types'
+import { PlacedTemplate, Template, ShirtTemplate } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Badge } from '@/components/ui/badge'
 import {
   RotateCcw,
   Trash2,
   Move,
   RotateCw,
   Layers,
-  Palette,
-  FlipHorizontal,
+  Shirt,
   Save,
-  Download,
+  Info,
 } from 'lucide-react'
 
 interface TemplateControlsProps {
   selectedTemplateId: string | null
   placedTemplates: PlacedTemplate[]
   templates: Template[]
-  shirtColor: string
-  view: 'front' | 'back'
+  shirtTemplate: ShirtTemplate | null
   onUpdateTemplate: (id: string, updates: Partial<PlacedTemplate>) => void
   onRemoveTemplate: (id: string) => void
   onResetPosition: (id: string) => void
-  onSetShirtColor: (color: string) => void
-  onSetView: (view: 'front' | 'back') => void
   onSaveDesign: () => void
 }
 
@@ -36,13 +33,10 @@ export function TemplateControls({
   selectedTemplateId,
   placedTemplates,
   templates,
-  shirtColor,
-  view,
+  shirtTemplate,
   onUpdateTemplate,
   onRemoveTemplate,
   onResetPosition,
-  onSetShirtColor,
-  onSetView,
   onSaveDesign,
 }: TemplateControlsProps) {
   const selectedPlaced = placedTemplates.find((t) => t.id === selectedTemplateId)
@@ -54,55 +48,34 @@ export function TemplateControls({
     <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
-          {/* Shirt Options */}
+          {/* Current Shirt Info */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Palette className="w-4 h-4 text-muted-foreground" />
-              <h3 className="font-medium text-sm">Shirt Color</h3>
+              <Shirt className="w-4 h-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">Selected Product</h3>
             </div>
-            <div className="grid grid-cols-6 gap-2">
-              {SHIRT_COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => onSetShirtColor(color.value)}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
-                    shirtColor === color.value
-                      ? 'border-accent ring-2 ring-accent/30'
-                      : 'border-border'
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* View Toggle */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <FlipHorizontal className="w-4 h-4 text-muted-foreground" />
-              <h3 className="font-medium text-sm">View</h3>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={view === 'front' ? 'default' : 'secondary'}
-                size="sm"
-                onClick={() => onSetView('front')}
-                className="flex-1"
-              >
-                Front
-              </Button>
-              <Button
-                variant={view === 'back' ? 'default' : 'secondary'}
-                size="sm"
-                onClick={() => onSetView('back')}
-                className="flex-1"
-              >
-                Back
-              </Button>
-            </div>
+            {shirtTemplate ? (
+              <div className="p-3 bg-secondary rounded-lg space-y-2">
+                <p className="font-medium text-sm">{shirtTemplate.name}</p>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="text-[10px]">
+                    {shirtTemplate.product_type}
+                  </Badge>
+                  <Badge variant="outline" className="text-[10px] capitalize">
+                    {shirtTemplate.view}
+                  </Badge>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-1 pt-1">
+                  <p>Canvas: {shirtTemplate.canvas_width} x {shirtTemplate.canvas_height}px</p>
+                  <p>Print Area: {shirtTemplate.printable_width} x {shirtTemplate.printable_height}px</p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-secondary rounded-lg text-center">
+                <p className="text-sm text-muted-foreground">No product selected</p>
+                <p className="text-xs text-muted-foreground mt-1">Select one from the Products tab</p>
+              </div>
+            )}
           </div>
 
           <Separator />
@@ -112,7 +85,7 @@ export function TemplateControls({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Selected Template</h3>
+                <h3 className="font-medium text-sm">Selected Design</h3>
               </div>
               
               <div className="p-3 bg-secondary rounded-lg">
@@ -185,8 +158,8 @@ export function TemplateControls({
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Layers className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Select a template to edit</p>
-              <p className="text-xs mt-1">or add one from the library</p>
+              <p className="text-sm">Select a design to edit</p>
+              <p className="text-xs mt-1">or add one from the Designs tab</p>
             </div>
           )}
 
@@ -195,7 +168,7 @@ export function TemplateControls({
           {/* Placed Templates List */}
           {placedTemplates.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-medium text-sm">Added Templates ({placedTemplates.length})</h3>
+              <h3 className="font-medium text-sm">Added Designs ({placedTemplates.length})</h3>
               <div className="space-y-2">
                 {placedTemplates.map((placed) => {
                   const template = templates.find((t) => t.id === placed.templateId)
@@ -203,7 +176,6 @@ export function TemplateControls({
                   return (
                     <div
                       key={placed.id}
-                      onClick={() => {}}
                       className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                         selectedTemplateId === placed.id
                           ? 'bg-accent/10 border border-accent/30'
@@ -228,12 +200,35 @@ export function TemplateControls({
               </div>
             </div>
           )}
+
+          {/* Printable Area Info */}
+          {shirtTemplate && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="font-medium text-sm">Printable Area</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Designs can only be placed within the dashed rectangle on the canvas. 
+                  The printable area for this product is {shirtTemplate.printable_width} x {shirtTemplate.printable_height}px 
+                  at position ({shirtTemplate.printable_x}, {shirtTemplate.printable_y}).
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </ScrollArea>
 
       {/* Save Button */}
       <div className="p-4 border-t border-border">
-        <Button onClick={onSaveDesign} className="w-full" size="lg">
+        <Button 
+          onClick={onSaveDesign} 
+          className="w-full" 
+          size="lg"
+          disabled={!shirtTemplate || placedTemplates.length === 0}
+        >
           <Save className="w-4 h-4 mr-2" />
           Save Design
         </Button>

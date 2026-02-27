@@ -1,4 +1,4 @@
-import { Template, PlacedTemplate, DesignState } from './types'
+import { Template, PlacedTemplate, DesignState, ShirtTemplate } from './types'
 
 // Sample templates for demonstration
 export const sampleTemplates: Template[] = [
@@ -91,8 +91,103 @@ export const templateCategories = [
   'Typography',
 ]
 
+// Sample shirt templates
+export const sampleShirtTemplates: ShirtTemplate[] = [
+  {
+    id: 'shirt-1',
+    name: 'White T-Shirt Front',
+    product_type: 'T-Shirt',
+    view: 'front',
+    image_url: '/shirt-templates/white-tshirt-front.svg',
+    canvas_width: 400,
+    canvas_height: 500,
+    printable_x: 85,
+    printable_y: 120,
+    printable_width: 230,
+    printable_height: 280,
+    enabled: true,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'shirt-2',
+    name: 'Black T-Shirt Front',
+    product_type: 'T-Shirt',
+    view: 'front',
+    image_url: '/shirt-templates/black-tshirt-front.svg',
+    canvas_width: 400,
+    canvas_height: 500,
+    printable_x: 85,
+    printable_y: 120,
+    printable_width: 230,
+    printable_height: 280,
+    enabled: true,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'shirt-3',
+    name: 'Navy T-Shirt Front',
+    product_type: 'T-Shirt',
+    view: 'front',
+    image_url: '/shirt-templates/navy-tshirt-front.svg',
+    canvas_width: 400,
+    canvas_height: 500,
+    printable_x: 85,
+    printable_y: 120,
+    printable_width: 230,
+    printable_height: 280,
+    enabled: true,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'shirt-4',
+    name: 'White T-Shirt Back',
+    product_type: 'T-Shirt',
+    view: 'back',
+    image_url: '/shirt-templates/white-tshirt-back.svg',
+    canvas_width: 400,
+    canvas_height: 500,
+    printable_x: 85,
+    printable_y: 100,
+    printable_width: 230,
+    printable_height: 300,
+    enabled: true,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'shirt-5',
+    name: 'Black Hoodie Front',
+    product_type: 'Hoodie',
+    view: 'front',
+    image_url: '/shirt-templates/black-hoodie-front.svg',
+    canvas_width: 400,
+    canvas_height: 520,
+    printable_x: 100,
+    printable_y: 140,
+    printable_width: 200,
+    printable_height: 240,
+    enabled: true,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'shirt-6',
+    name: 'Gray Long Sleeve Front',
+    product_type: 'Long Sleeve',
+    view: 'front',
+    image_url: '/shirt-templates/gray-longsleeve-front.svg',
+    canvas_width: 400,
+    canvas_height: 500,
+    printable_x: 85,
+    printable_y: 120,
+    printable_width: 230,
+    printable_height: 280,
+    enabled: true,
+    created_at: new Date().toISOString(),
+  },
+]
+
 // Local storage helpers
 const TEMPLATES_KEY = 'tshirt_designer_templates'
+const SHIRT_TEMPLATES_KEY = 'tshirt_designer_shirt_templates'
 const DESIGNS_KEY = 'tshirt_designer_designs'
 
 export function getStoredTemplates(): Template[] {
@@ -133,6 +228,26 @@ export function saveDesign(design: DesignState): void {
   const designs = getSavedDesigns()
   designs.push(design)
   localStorage.setItem(DESIGNS_KEY, JSON.stringify(designs))
+}
+
+export function getStoredShirtTemplates(): ShirtTemplate[] {
+  if (typeof window === 'undefined') return sampleShirtTemplates
+  const stored = localStorage.getItem(SHIRT_TEMPLATES_KEY)
+  if (stored) {
+    try {
+      return JSON.parse(stored)
+    } catch {
+      return sampleShirtTemplates
+    }
+  }
+  // Initialize with sample shirt templates
+  localStorage.setItem(SHIRT_TEMPLATES_KEY, JSON.stringify(sampleShirtTemplates))
+  return sampleShirtTemplates
+}
+
+export function saveShirtTemplates(templates: ShirtTemplate[]): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(SHIRT_TEMPLATES_KEY, JSON.stringify(templates))
 }
 
 export function generateId(): string {
