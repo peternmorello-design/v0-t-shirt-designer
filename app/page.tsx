@@ -206,7 +206,7 @@ export default function DesignerPage() {
 
       {/* Main Designer */}
       <main className="max-w-[1600px] mx-auto p-4 lg:p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 items-start">
           {/* Left - Canvas */}
           <div className="flex justify-center order-1">
             <ShirtCanvas
@@ -220,10 +220,10 @@ export default function DesignerPage() {
           </div>
 
           {/* Right Panel - Products, Designs & Controls */}
-          <div className="flex flex-col gap-4 h-[calc(100vh-120px)] order-2">
+          <div className="flex flex-col gap-4 order-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)]">
             {/* Product & Design Selection */}
-            <div className="bg-card rounded-2xl border border-border overflow-hidden flex-1 min-h-0">
-              <Tabs defaultValue="products" className="h-full flex flex-col">
+            <div className="bg-card rounded-2xl border border-border overflow-hidden flex-1 min-h-0 flex flex-col" style={{ minHeight: '420px' }}>
+              <Tabs defaultValue="products" className="flex-1 flex flex-col min-h-0">
                 <TabsList className="w-full rounded-none border-b border-border bg-transparent p-0 shrink-0">
                   <TabsTrigger
                     value="products"
@@ -240,14 +240,14 @@ export default function DesignerPage() {
                     Designs
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="products" className="flex-1 m-0 overflow-hidden">
+                <TabsContent value="products" className="flex-1 m-0 overflow-hidden min-h-0">
                   <ShirtSelector
                     templates={shirtTemplates}
                     selectedId={selectedShirtTemplate?.id || null}
                     onSelect={handleSelectShirtTemplate}
                   />
                 </TabsContent>
-                <TabsContent value="designs" className="flex-1 m-0 overflow-hidden">
+                <TabsContent value="designs" className="flex-1 m-0 overflow-hidden min-h-0">
                   <TemplateLibrary
                     templates={templates}
                     onAddTemplate={handleAddTemplate}

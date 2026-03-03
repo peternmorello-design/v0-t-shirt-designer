@@ -27,7 +27,7 @@ export function TemplateLibrary({ templates, onAddTemplate, disabled }: Template
   })
 
   return (
-    <div className="relative flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+    <div className="relative flex flex-col h-full overflow-hidden">
       {disabled && (
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
           <p className="text-sm text-muted-foreground text-center px-4">
@@ -72,7 +72,7 @@ export function TemplateLibrary({ templates, onAddTemplate, disabled }: Template
 
       {/* Template Grid */}
       <ScrollArea className="flex-1 p-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {filteredTemplates.map((template) => (
             <button
               key={template.id}

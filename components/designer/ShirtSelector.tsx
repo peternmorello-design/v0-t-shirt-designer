@@ -109,7 +109,7 @@ export function ShirtSelector({ templates, selectedId, onSelect }: ShirtSelector
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 {productType}
               </h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 {templates.map((template) => {
                   const isSelected = selectedId === template.id
                   return (
