@@ -179,21 +179,6 @@ export function ShirtCanvas({
             </svg>
           )}
 
-          {/* Printable Area Indicator (relative to shirt) */}
-          <div
-            className="absolute border-2 border-dashed border-emerald-500/40 rounded-lg pointer-events-none"
-            style={{
-              left: toScreen(printableArea.x),
-              top: toScreen(printableArea.y),
-              width: toScreen(printableArea.width),
-              height: toScreen(printableArea.height),
-            }}
-          >
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs bg-emerald-500/80 text-white px-2 py-0.5 rounded whitespace-nowrap">
-              {printableArea.width} x {printableArea.height}px
-            </div>
-          </div>
-
           {/* Placed Templates (positioned relative to shirt) */}
           {placedTemplates.map((placed) => {
             const template = templates.find((t) => t.id === placed.templateId)
@@ -236,17 +221,10 @@ export function ShirtCanvas({
       </div>
 
       {/* Info Panel */}
-      <div className="text-center space-y-1">
+      <div className="text-center">
         <p className="text-sm text-muted-foreground">
           Drag templates to position. Templates snap to center.
         </p>
-        {shirtTemplate && (
-          <div className="text-xs text-muted-foreground font-mono bg-muted px-3 py-2 rounded-lg inline-block">
-            <span className="text-foreground">Canvas:</span> {canvasWidth} x {canvasHeight}px |{' '}
-            <span className="text-foreground">Shirt:</span> {shirtPixelWidth} x {shirtPixelHeight}px |{' '}
-            <span className="text-foreground">Printable:</span> {printableArea.width} x {printableArea.height}px
-          </div>
-        )}
       </div>
     </div>
   )
