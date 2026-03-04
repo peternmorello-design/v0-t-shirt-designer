@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Shirt, Settings, RotateCcw, Palette, Layers } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -196,11 +197,15 @@ export default function DesignerPage() {
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <Shirt className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <Image
+              src="/images/knm-logo.jpeg"
+              alt="KNM Apparel"
+              width={120}
+              height={48}
+              className="h-10 w-auto object-contain"
+              priority
+            />
             <div>
-              <h1 className="font-semibold text-foreground">Custom Designer</h1>
               <p className="text-xs text-muted-foreground">
                 {selectedShirtTemplate ? selectedShirtTemplate.name : 'Select a product to begin'}
               </p>
