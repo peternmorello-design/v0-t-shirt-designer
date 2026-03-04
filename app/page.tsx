@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Template, PlacedTemplate, DesignState, ShirtTemplate } from '@/lib/types'
 import { getStoredTemplates, getStoredShirtTemplates, generateId } from '@/lib/store'
+import { buildDesignPayload, handleAddToCartFlow, CartStatus } from '@/lib/cart'
 import { ShirtCanvas } from '@/components/designer/ShirtCanvas'
 import { ShirtSelector } from '@/components/designer/ShirtSelector'
 import { TemplateLibrary } from '@/components/designer/TemplateLibrary'
@@ -19,6 +20,7 @@ export default function DesignerPage() {
   const [templates, setTemplates] = useState<Template[]>([])
   const [shirtTemplates, setShirtTemplates] = useState<ShirtTemplate[]>([])
   const [selectedShirtTemplate, setSelectedShirtTemplate] = useState<ShirtTemplate | null>(null)
+  const [cartStatus, setCartStatus] = useState<CartStatus>('idle')
   const [designState, setDesignState] = useState<DesignState>({
     shirtTemplateId: null,
     placedTemplates: [],
@@ -167,6 +169,27 @@ export default function DesignerPage() {
     toast.success('Canvas cleared')
   }, [])
 
+  const handleAddToCart = useCallback(async () => {
+    if (!selectedShirtTemplate) {
+      toast.error('Please select a product first')
+      return
+    }
+    if (designState.placedTemplates.length === 0) {
+      toast.error('Add at least one design to the shirt')
+      return
+    }
+
+    const payload = buildDesignPayload(designState, templates, selectedShirtTemplate)
+
+    try {
+      await handleAddToCartFlow(payload, setCartStatus)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong'
+      toast.error(message)
+      setCartStatus('idle')
+    }
+  }, [designState, templates, selectedShirtTemplate])
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -266,6 +289,8 @@ export default function DesignerPage() {
               onRemoveTemplate={handleRemoveTemplate}
               onResetPosition={handleResetPosition}
               onSaveDesign={handleSaveDesign}
+              onAddToCart={handleAddToCart}
+              cartStatus={cartStatus}
             />
           </div>
         </div>
