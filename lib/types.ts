@@ -34,6 +34,8 @@ export interface ShirtTemplate {
   printable_height: number
   enabled: boolean
   created_at: string
+  // Shopify variant ID for this specific product (optional until connected)
+  shopifyVariantId?: string
 }
 
 export const PRODUCT_TYPES = [

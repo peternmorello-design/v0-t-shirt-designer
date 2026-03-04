@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { SHOPIFY_STORE_URL } from '@/lib/cart'
 
 /**
  * POST /api/generate-mockup
@@ -34,17 +35,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ---- Environment variables ----------
-    const shopifyStoreUrl = process.env.SHOPIFY_STORE_URL
-    const variantId = process.env.SHOPIFY_VARIANT_ID
+    // ---- Shopify config -----------------
+    const shopifyStoreUrl = SHOPIFY_STORE_URL
+    const variantId = designPayload.shopifyVariantId
 
-    if (!shopifyStoreUrl || !variantId) {
+    if (!variantId) {
       return NextResponse.json(
         {
           error:
-            'Shopify configuration is missing. Set SHOPIFY_STORE_URL and SHOPIFY_VARIANT_ID environment variables.',
+            'This product is not yet connected to a Shopify variant. Please configure a variant ID for this shirt template.',
         },
-        { status: 500 }
+        { status: 400 }
       )
     }
 

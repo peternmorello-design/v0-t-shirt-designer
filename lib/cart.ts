@@ -1,6 +1,11 @@
 import { DesignState, PlacedTemplate, Template, ShirtTemplate } from './types'
 
 /**
+ * Shopify store URL – hardcoded for now; move to env var if needed.
+ */
+export const SHOPIFY_STORE_URL = 'https://ewvq3i-gd.myshopify.com'
+
+/**
  * Serializable design payload sent to the backend for mockup generation
  * and attached as Shopify line item properties.
  */
@@ -10,6 +15,7 @@ export interface DesignPayload {
   productType: string
   view: 'front' | 'back'
   shirtColor: string
+  shopifyVariantId: string | null
   placedTemplates: Array<{
     templateId: string
     templateName: string
@@ -51,6 +57,7 @@ export function buildDesignPayload(
     productType: shirtTemplate?.product_type ?? '',
     view: designState.view,
     shirtColor: designState.shirtColor,
+    shopifyVariantId: shirtTemplate?.shopifyVariantId ?? null,
     placedTemplates: designState.placedTemplates.map((placed) => {
       const tmpl = templates.find((t) => t.id === placed.templateId)
       return {
