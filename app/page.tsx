@@ -196,23 +196,20 @@ export default function DesignerPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/images/knm-logo.jpeg"
-              alt="KNM Apparel"
-              width={120}
-              height={48}
-              className="h-10 w-auto object-contain"
-              priority
-            />
-            <div>
-              <p className="text-xs text-muted-foreground">
-                {selectedShirtTemplate ? selectedShirtTemplate.name : 'Select a product to begin'}
-              </p>
-            </div>
-          </div>
+          {/* Left spacer for centering */}
+          <div className="flex items-center gap-3 flex-1" />
 
-          <div className="flex items-center gap-3">
+          {/* Centered logo */}
+          <Image
+            src="/images/knm-logo.jpeg"
+            alt="KNM Apparel"
+            width={120}
+            height={48}
+            className="h-10 w-auto object-contain"
+            priority
+          />
+
+          <div className="flex items-center gap-3 flex-1 justify-end">
             <Button variant="outline" size="sm" onClick={handleClearDesign}>
               <RotateCcw className="w-4 h-4 mr-2" />
               Clear
