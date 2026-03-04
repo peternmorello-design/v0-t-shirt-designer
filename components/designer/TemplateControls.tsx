@@ -53,7 +53,7 @@ export function TemplateControls({
 
   return (
     <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-6">
           {/* Current Shirt Info */}
           <div className="space-y-3">
@@ -229,7 +229,7 @@ export function TemplateControls({
       </ScrollArea>
 
       {/* Footer Buttons */}
-      <div className="p-4 border-t border-border space-y-2">
+      <div className="shrink-0 p-4 border-t border-border space-y-2">
         <Button 
           onClick={onSaveDesign} 
           className="w-full" 
