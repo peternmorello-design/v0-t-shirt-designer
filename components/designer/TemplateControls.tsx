@@ -1,6 +1,7 @@
 'use client'
 
 import { PlacedTemplate, Template, ShirtTemplate } from '@/lib/types'
+import { CartStatus, CART_STATUS_LABELS } from '@/lib/cart'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
@@ -16,6 +17,8 @@ import {
   Shirt,
   Save,
   Info,
+  ShoppingCart,
+  Loader2,
 } from 'lucide-react'
 
 interface TemplateControlsProps {
@@ -27,6 +30,8 @@ interface TemplateControlsProps {
   onRemoveTemplate: (id: string) => void
   onResetPosition: (id: string) => void
   onSaveDesign: () => void
+  onAddToCart: () => void
+  cartStatus: CartStatus
 }
 
 export function TemplateControls({
@@ -38,6 +43,8 @@ export function TemplateControls({
   onRemoveTemplate,
   onResetPosition,
   onSaveDesign,
+  onAddToCart,
+  cartStatus,
 }: TemplateControlsProps) {
   const selectedPlaced = placedTemplates.find((t) => t.id === selectedTemplateId)
   const selectedTemplate = selectedPlaced
@@ -46,7 +53,7 @@ export function TemplateControls({
 
   return (
     <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-6">
           {/* Current Shirt Info */}
           <div className="space-y-3">
@@ -221,16 +228,34 @@ export function TemplateControls({
         </div>
       </ScrollArea>
 
-      {/* Save Button */}
-      <div className="p-4 border-t border-border">
+      {/* Footer Buttons */}
+      <div className="shrink-0 p-4 border-t border-border space-y-2">
         <Button 
           onClick={onSaveDesign} 
           className="w-full" 
           size="lg"
+          variant="outline"
           disabled={!shirtTemplate || placedTemplates.length === 0}
         >
           <Save className="w-4 h-4 mr-2" />
           Save Design
+        </Button>
+        <Button
+          onClick={onAddToCart}
+          className="w-full"
+          size="lg"
+          disabled={
+            !shirtTemplate ||
+            placedTemplates.length === 0 ||
+            (cartStatus !== 'idle' && cartStatus !== 'error')
+          }
+        >
+          {cartStatus !== 'idle' && cartStatus !== 'error' ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <ShoppingCart className="w-4 h-4 mr-2" />
+          )}
+          {CART_STATUS_LABELS[cartStatus]}
         </Button>
       </div>
     </div>

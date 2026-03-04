@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Template, PlacedTemplate, DesignState, ShirtTemplate } from '@/lib/types'
+import { Template, PlacedTemplate, DesignState, ShirtTemplate, ShirtSize } from '@/lib/types'
 import { getStoredTemplates, getStoredShirtTemplates, generateId } from '@/lib/store'
+import { buildDesignPayload, handleAddToCartFlow, CartStatus } from '@/lib/cart'
 import { ShirtCanvas } from '@/components/designer/ShirtCanvas'
 import { ShirtSelector } from '@/components/designer/ShirtSelector'
 import { TemplateLibrary } from '@/components/designer/TemplateLibrary'
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Shirt, Settings, RotateCcw, Palette, Layers } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -19,12 +21,14 @@ export default function DesignerPage() {
   const [templates, setTemplates] = useState<Template[]>([])
   const [shirtTemplates, setShirtTemplates] = useState<ShirtTemplate[]>([])
   const [selectedShirtTemplate, setSelectedShirtTemplate] = useState<ShirtTemplate | null>(null)
+  const [cartStatus, setCartStatus] = useState<CartStatus>('idle')
   const [designState, setDesignState] = useState<DesignState>({
     shirtTemplateId: null,
     placedTemplates: [],
     selectedTemplateId: null,
     shirtColor: '#FFFFFF',
     view: 'front',
+    selectedSize: 'L',
   })
 
   useEffect(() => {
@@ -167,24 +171,46 @@ export default function DesignerPage() {
     toast.success('Canvas cleared')
   }, [])
 
+  const handleAddToCart = useCallback(async () => {
+    if (!selectedShirtTemplate) {
+      toast.error('Please select a product first')
+      return
+    }
+    if (designState.placedTemplates.length === 0) {
+      toast.error('Add at least one design to the shirt')
+      return
+    }
+
+    const payload = buildDesignPayload(designState, templates, selectedShirtTemplate)
+
+    try {
+      await handleAddToCartFlow(payload, setCartStatus)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong'
+      toast.error(message)
+      setCartStatus('idle')
+    }
+  }, [designState, templates, selectedShirtTemplate])
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <Shirt className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="font-semibold text-foreground">Custom Designer</h1>
-              <p className="text-xs text-muted-foreground">
-                {selectedShirtTemplate ? selectedShirtTemplate.name : 'Select a product to begin'}
-              </p>
-            </div>
-          </div>
+          {/* Left spacer for centering */}
+          <div className="flex items-center gap-3 flex-1" />
 
-          <div className="flex items-center gap-3">
+          {/* Centered logo */}
+          <Image
+            src="/images/knm-logo.jpeg"
+            alt="KNM Apparel"
+            width={120}
+            height={48}
+            className="h-10 w-auto object-contain"
+            priority
+          />
+
+          <div className="flex items-center gap-3 flex-1 justify-end">
             <Button variant="outline" size="sm" onClick={handleClearDesign}>
               <RotateCcw className="w-4 h-4 mr-2" />
               Clear
@@ -226,14 +252,14 @@ export default function DesignerPage() {
                   Designs
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="products" className="flex-1 m-0 overflow-hidden">
+              <TabsContent value="products" className="flex-1 min-h-0 m-0 overflow-hidden">
                 <ShirtSelector
                   templates={shirtTemplates}
                   selectedId={selectedShirtTemplate?.id || null}
                   onSelect={handleSelectShirtTemplate}
                 />
               </TabsContent>
-              <TabsContent value="designs" className="flex-1 m-0 overflow-hidden">
+              <TabsContent value="designs" className="flex-1 min-h-0 m-0 overflow-hidden">
                 <TemplateLibrary 
                   templates={templates} 
                   onAddTemplate={handleAddTemplate}
@@ -266,6 +292,8 @@ export default function DesignerPage() {
               onRemoveTemplate={handleRemoveTemplate}
               onResetPosition={handleResetPosition}
               onSaveDesign={handleSaveDesign}
+              onAddToCart={handleAddToCart}
+              cartStatus={cartStatus}
             />
           </div>
         </div>

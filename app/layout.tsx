@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Custom T-Shirt Designer',
-  description: 'Design your perfect custom t-shirt with our premium template-based designer',
+  title: 'KNM Apparel - Custom T-Shirt Designer',
+  description: 'Design your perfect custom t-shirt with KNM Apparel',
   generator: 'v0.app',
   icons: {
     icon: [

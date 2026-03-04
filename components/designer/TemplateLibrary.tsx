@@ -71,7 +71,7 @@ export function TemplateLibrary({ templates, onAddTemplate, disabled }: Template
       </div>
 
       {/* Template Grid */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 min-h-0 p-4">
         <div className="grid grid-cols-2 gap-3">
           {filteredTemplates.map((template) => (
             <button

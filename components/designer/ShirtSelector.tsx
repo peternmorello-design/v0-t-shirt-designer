@@ -102,7 +102,7 @@ export function ShirtSelector({ templates, selectedId, onSelect }: ShirtSelector
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-6">
           {Object.entries(groupedTemplates).map(([productType, templates]) => (
             <div key={productType} className="space-y-3">
