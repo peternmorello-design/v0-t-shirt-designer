@@ -251,14 +251,14 @@ export default function DesignerPage() {
                   Designs
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="products" className="flex-1 m-0 overflow-hidden">
+              <TabsContent value="products" className="flex-1 min-h-0 m-0 overflow-hidden">
                 <ShirtSelector
                   templates={shirtTemplates}
                   selectedId={selectedShirtTemplate?.id || null}
                   onSelect={handleSelectShirtTemplate}
                 />
               </TabsContent>
-              <TabsContent value="designs" className="flex-1 m-0 overflow-hidden">
+              <TabsContent value="designs" className="flex-1 min-h-0 m-0 overflow-hidden">
                 <TemplateLibrary 
                   templates={templates} 
                   onAddTemplate={handleAddTemplate}
