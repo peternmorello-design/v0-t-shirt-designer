@@ -111,7 +111,9 @@ export const sampleShirtTemplates: ShirtTemplate[] = [
     printable_height: 2000,
     enabled: true,
     created_at: new Date().toISOString(),
-    shopifyVariantId: '53096327872878',
+    shopifyVariantIds: {
+      L: '53096327872878',
+    },
   },
   {
     id: 'shirt-2',

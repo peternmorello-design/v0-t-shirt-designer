@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Template, PlacedTemplate, DesignState, ShirtTemplate } from '@/lib/types'
+import { Template, PlacedTemplate, DesignState, ShirtTemplate, ShirtSize } from '@/lib/types'
 import { getStoredTemplates, getStoredShirtTemplates, generateId } from '@/lib/store'
 import { buildDesignPayload, handleAddToCartFlow, CartStatus } from '@/lib/cart'
 import { ShirtCanvas } from '@/components/designer/ShirtCanvas'
@@ -28,6 +28,7 @@ export default function DesignerPage() {
     selectedTemplateId: null,
     shirtColor: '#FFFFFF',
     view: 'front',
+    selectedSize: 'L',
   })
 
   useEffect(() => {

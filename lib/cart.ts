@@ -1,4 +1,4 @@
-import { DesignState, PlacedTemplate, Template, ShirtTemplate } from './types'
+import { DesignState, PlacedTemplate, Template, ShirtTemplate, ShirtSize } from './types'
 
 /**
  * Shopify store URL – hardcoded for now; move to env var if needed.
@@ -15,6 +15,7 @@ export interface DesignPayload {
   productType: string
   view: 'front' | 'back'
   shirtColor: string
+  selectedSize: ShirtSize
   shopifyVariantId: string | null
   placedTemplates: Array<{
     templateId: string
@@ -57,7 +58,8 @@ export function buildDesignPayload(
     productType: shirtTemplate?.product_type ?? '',
     view: designState.view,
     shirtColor: designState.shirtColor,
-    shopifyVariantId: shirtTemplate?.shopifyVariantId ?? null,
+    selectedSize: designState.selectedSize,
+    shopifyVariantId: shirtTemplate?.shopifyVariantIds?.[designState.selectedSize] ?? null,
     placedTemplates: designState.placedTemplates.map((placed) => {
       const tmpl = templates.find((t) => t.id === placed.templateId)
       return {
@@ -113,6 +115,7 @@ export async function addToShopifyCart(
     _product_type: payload.productType,
     _shirt_color: payload.shirtColor,
     _view: payload.view,
+    _size: payload.selectedSize,
     _design_json: JSON.stringify(payload.placedTemplates),
   }
 

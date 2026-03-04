@@ -12,6 +12,17 @@ export interface Template {
   created_at: string
 }
 
+export type ShirtSize = 'S' | 'M' | 'L' | 'XL'
+
+export const SHIRT_SIZES: ShirtSize[] = ['S', 'M', 'L', 'XL']
+
+export const SHIRT_SIZE_LABELS: Record<ShirtSize, string> = {
+  S: 'Small',
+  M: 'Medium',
+  L: 'Large',
+  XL: 'X-Large',
+}
+
 export interface ShirtTemplate {
   id: string
   name: string
@@ -34,8 +45,8 @@ export interface ShirtTemplate {
   printable_height: number
   enabled: boolean
   created_at: string
-  // Shopify variant ID for this specific product (optional until connected)
-  shopifyVariantId?: string
+  // Map of size -> Shopify variant ID. Sizes without IDs are not yet connected.
+  shopifyVariantIds?: Partial<Record<ShirtSize, string>>
 }
 
 export const PRODUCT_TYPES = [
@@ -70,6 +81,7 @@ export interface DesignState {
   selectedTemplateId: string | null
   shirtColor: string
   view: 'front' | 'back'
+  selectedSize: ShirtSize
 }
 
 // Legacy constants - kept for backwards compatibility with old saved designs
