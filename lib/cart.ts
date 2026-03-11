@@ -107,7 +107,7 @@ export function buildDesignPayload(
 export async function generateMockup(
   payload: DesignPayload
 ): Promise<string> {
-  const res = await fetch('/api/generate-mockup', {
+  const res = await fetch('/api/create-mockup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -183,7 +183,7 @@ export async function handleAddToCartFlow(
   try {
     // Step 1: Generate mockup
     onStatusChange('generating-mockup')
-    const result = await fetch('/api/generate-mockup', {
+    const result = await fetch('/api/create-mockup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
