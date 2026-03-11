@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import sharp from 'sharp'
+import type { OverlayOptions } from 'sharp'
 import { SHOPIFY_CONFIG } from '@/lib/shopify-config'
 
 interface PlacedTemplatePayload {
@@ -174,7 +175,7 @@ async function generateMockupImage(
   })
 
   // Prepare composite layers
-  const compositeInputs: sharp.OverlayOptions[] = []
+  const compositeInputs: OverlayOptions[] = []
 
   // Load and add shirt template image
   if (shirtTemplate?.image_url) {
