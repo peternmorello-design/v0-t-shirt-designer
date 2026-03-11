@@ -9,8 +9,8 @@ import { SHOPIFY_CONFIG } from '@/lib/shopify-config'
  * uploads it to Vercel Blob, and returns the public URL along with
  * Shopify checkout details.
  * 
- * This approach avoids server-side image processing libraries
- * that have native binary compatibility issues in serverless environments.
+ * All image compositing is done client-side using HTML Canvas.
+ * The server only handles the Blob upload - no image processing libraries required.
  */
 export async function POST(request: NextRequest) {
   try {
