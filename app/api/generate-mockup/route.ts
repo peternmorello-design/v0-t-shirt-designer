@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
+import { createCanvas, loadImage } from '@napi-rs/canvas'
 import { SHOPIFY_CONFIG } from '@/lib/shopify-config'
 
 interface PlacedTemplatePayload {
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ---- Generate mockup using canvas ---
+    // ---- Generate mockup using @napi-rs/canvas ---
     const mockupBuffer = await generateMockupImage(designPayload, request)
     
     // ---- Upload to Vercel Blob ----------
@@ -108,22 +109,19 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error('Mockup generation error:', error)
     const message =
-      error instanceof Error ? error.message : 'Internal server error'
+      error instanceof Error ? error.message : 'Mockup generation failed'
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
 /**
  * Generate the mockup image by compositing the shirt template with placed designs.
- * Uses node-canvas for server-side rendering.
+ * Uses @napi-rs/canvas for serverless-compatible server-side rendering.
  */
 async function generateMockupImage(
   payload: DesignPayload,
   request: NextRequest
 ): Promise<Buffer> {
-  // Dynamic import for canvas (only available server-side)
-  const { createCanvas, loadImage } = await import('canvas')
-
   // Get shirt template dimensions
   const shirtTemplate = payload.shirtTemplate
   const canvasWidth = shirtTemplate?.canvas_width || 3000
@@ -197,6 +195,7 @@ async function generateMockupImage(
   }
 
   // Convert canvas to PNG buffer
+  // @napi-rs/canvas returns a Buffer directly from toBuffer
   return canvas.toBuffer('image/png')
 }
 
@@ -208,12 +207,17 @@ function resolveImageUrl(url: string, request: NextRequest): string {
     return url
   }
 
-  // Get the origin from the request
-  const origin = request.headers.get('origin') || 
-    request.headers.get('host')?.replace(/^([^:]+)(:\d+)?$/, (_, host, port) => 
-      `${request.headers.get('x-forwarded-proto') || 'http'}://${host}${port || ''}`
-    ) || 
-    'http://localhost:3000'
+  // Get the origin from the request headers
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const host = request.headers.get('host')
+  
+  // Prefer forwarded headers (used in production), fall back to host
+  const origin = forwardedHost 
+    ? `${forwardedProto}://${forwardedHost}`
+    : host 
+      ? `${forwardedProto}://${host}`
+      : 'http://localhost:3000'
 
   // Handle relative URLs
   if (url.startsWith('/')) {
