@@ -274,22 +274,28 @@ export async function handleAddToCartFlow(
   try {
     // Step 1: Generate mockup client-side
     onStatusChange('generating-mockup')
+    console.log('[v0] Starting add to cart flow with payload:', payload)
     
     if (!payload.shopifyVariantId) {
       throw new Error('This product is not yet connected to a Shopify variant. Please select a valid size.')
     }
 
+    console.log('[v0] Generating mockup client-side...')
     const imageData = await generateMockupClientSide(payload)
+    console.log('[v0] Mockup generated, data URL length:', imageData.length)
 
     // Step 2: Upload to blob storage
+    console.log('[v0] Uploading mockup to /api/upload-mockup...')
     const { mockupUrl, shopifyStoreUrl, variantId } = await uploadMockup(
       imageData,
       payload.shirtTemplateId,
       payload.shopifyVariantId
     )
+    console.log('[v0] Mockup uploaded successfully:', { mockupUrl, shopifyStoreUrl, variantId })
 
     // Step 3: Add to Shopify cart
     onStatusChange('adding-to-cart')
+    console.log('[v0] Adding to Shopify cart...')
     await addToShopifyCart(payload, mockupUrl, shopifyStoreUrl, variantId)
 
     // Step 4: Redirect to Shopify cart
