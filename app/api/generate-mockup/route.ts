@@ -41,18 +41,13 @@ interface DesignPayload {
 
 /**
  * POST /api/generate-mockup
- *
- * Accepts the full design payload (shirt template, placed designs, colors, etc.)
- * and returns a public mockup image URL stored in Vercel Blob.
- *
- * Uses Sharp (pure JavaScript image library) for serverless-compatible image compositing.
- * This avoids native binary dependencies that fail in Vercel serverless environments.
+ * 
+ * Generates a mockup image using Sharp and uploads to Vercel Blob.
  */
 export async function POST(request: NextRequest) {
   try {
     const designPayload: DesignPayload = await request.json()
 
-    // ---- Validate required fields -------
     if (!designPayload || !designPayload.shirtTemplateId) {
       return NextResponse.json(
         { error: 'Missing design payload or shirtTemplateId' },
@@ -70,7 +65,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ---- Shopify config -----------------
     const shopifyStoreUrl = SHOPIFY_CONFIG.storeUrl
     const variantId = designPayload.shopifyVariantId
 
@@ -84,19 +78,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ---- Generate mockup using Sharp ---
-    const mockupBuffer = await generateMockupImage(designPayload, request)
-    
-    // ---- Upload to Vercel Blob ----------
+    const mockupBuffer = await generateMockupWithSharp(designPayload, request)
+
     const timestamp = Date.now()
     const filename = `mockups/design-${designPayload.shirtTemplateId}-${timestamp}.png`
-    
+
     const blob = await put(filename, mockupBuffer, {
       access: 'public',
       contentType: 'image/png',
     })
 
-    // ---- Response ------------------------
     return NextResponse.json({
       mockupUrl: blob.url,
       shopifyStoreUrl,
@@ -114,9 +105,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Fetch an image and return it as a Buffer.
- */
 async function fetchImageBuffer(url: string): Promise<Buffer> {
   const response = await fetch(url)
   if (!response.ok) {
@@ -126,9 +114,6 @@ async function fetchImageBuffer(url: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer)
 }
 
-/**
- * Resolve relative image URLs to absolute URLs for server-side fetching.
- */
 function resolveImageUrl(url: string, request: NextRequest): string {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url
@@ -137,10 +122,10 @@ function resolveImageUrl(url: string, request: NextRequest): string {
   const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
   const forwardedHost = request.headers.get('x-forwarded-host')
   const host = request.headers.get('host')
-  
-  const origin = forwardedHost 
+
+  const origin = forwardedHost
     ? `${forwardedProto}://${forwardedHost}`
-    : host 
+    : host
       ? `${forwardedProto}://${host}`
       : 'http://localhost:3000'
 
@@ -151,11 +136,7 @@ function resolveImageUrl(url: string, request: NextRequest): string {
   return `${origin}/${url}`
 }
 
-/**
- * Generate the mockup image by compositing the shirt template with placed designs.
- * Uses Sharp for serverless-compatible image processing.
- */
-async function generateMockupImage(
+async function generateMockupWithSharp(
   payload: DesignPayload,
   request: NextRequest
 ): Promise<Buffer> {
@@ -165,7 +146,6 @@ async function generateMockupImage(
   const shirtOffsetX = shirtTemplate?.shirt_offset_x || 400
   const shirtOffsetY = shirtTemplate?.shirt_offset_y || 200
 
-  // Create base canvas with background color
   let composite = sharp({
     create: {
       width: canvasWidth,
@@ -175,16 +155,13 @@ async function generateMockupImage(
     },
   })
 
-  // Prepare composite layers
   const compositeInputs: OverlayOptions[] = []
 
-  // Load and add shirt template image
   if (shirtTemplate?.image_url) {
     try {
       const shirtImageUrl = resolveImageUrl(shirtTemplate.image_url, request)
       const shirtBuffer = await fetchImageBuffer(shirtImageUrl)
-      
-      // Resize shirt image to specified dimensions
+
       const resizedShirt = await sharp(shirtBuffer)
         .resize(
           shirtTemplate.shirt_pixel_width || undefined,
@@ -203,7 +180,6 @@ async function generateMockupImage(
     }
   }
 
-  // Add each placed template
   for (const placed of payload.placedTemplates) {
     if (!placed.imageUrl) continue
 
@@ -211,17 +187,13 @@ async function generateMockupImage(
       const templateImageUrl = resolveImageUrl(placed.imageUrl, request)
       const templateBuffer = await fetchImageBuffer(templateImageUrl)
 
-      // Resize template to specified dimensions
       let templateSharp = sharp(templateBuffer).resize(
         Math.round(placed.width),
         Math.round(placed.height),
         { fit: 'fill' }
       )
 
-      // Apply rotation if needed
       if (placed.rotation !== 0) {
-        // Sharp rotation works in degrees, counter-clockwise
-        // We need to rotate and then extract the rotated image
         templateSharp = templateSharp.rotate(placed.rotation, {
           background: { r: 0, g: 0, b: 0, alpha: 0 },
         })
@@ -229,12 +201,10 @@ async function generateMockupImage(
 
       const processedTemplate = await templateSharp.toBuffer()
 
-      // Get the metadata of the processed image to calculate correct positioning
       const metadata = await sharp(processedTemplate).metadata()
       const processedWidth = metadata.width || Math.round(placed.width)
       const processedHeight = metadata.height || Math.round(placed.height)
 
-      // Calculate position adjustment for rotation (center the rotated image)
       const originalCenterX = shirtOffsetX + placed.x + placed.width / 2
       const originalCenterY = shirtOffsetY + placed.y + placed.height / 2
       const adjustedLeft = Math.round(originalCenterX - processedWidth / 2)
@@ -250,7 +220,6 @@ async function generateMockupImage(
     }
   }
 
-  // Apply all composites and output PNG
   if (compositeInputs.length > 0) {
     composite = composite.composite(compositeInputs)
   }
