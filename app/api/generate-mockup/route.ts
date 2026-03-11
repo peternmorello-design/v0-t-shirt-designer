@@ -45,7 +45,8 @@ interface DesignPayload {
  * Accepts the full design payload (shirt template, placed designs, colors, etc.)
  * and returns a public mockup image URL stored in Vercel Blob.
  *
- * The mockup is generated server-side using Sharp for image compositing.
+ * Uses Sharp (pure JavaScript image library) for serverless-compatible image compositing.
+ * This avoids native binary dependencies that fail in Vercel serverless environments.
  */
 export async function POST(request: NextRequest) {
   try {
