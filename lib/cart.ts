@@ -1,9 +1,5 @@
 import { DesignState, PlacedTemplate, Template, ShirtTemplate, ShirtSize } from './types'
-
-/**
- * Shopify store URL – hardcoded for now; move to env var if needed.
- */
-export const SHOPIFY_STORE_URL = 'https://ewvq3i-gd.myshopify.com'
+import { SHOPIFY_CONFIG, resolveVariantId, getCartUrl } from './shopify-config'
 
 /**
  * Serializable design payload sent to the backend for mockup generation
@@ -27,6 +23,20 @@ export interface DesignPayload {
     height: number
     imageUrl: string
   }>
+  // Include shirt template dimensions for server-side rendering
+  shirtTemplate?: {
+    canvas_width: number
+    canvas_height: number
+    shirt_pixel_width: number
+    shirt_pixel_height: number
+    shirt_offset_x: number
+    shirt_offset_y: number
+    printable_x: number
+    printable_y: number
+    printable_width: number
+    printable_height: number
+    image_url: string
+  }
 }
 
 export type CartStatus =
@@ -46,6 +56,7 @@ export const CART_STATUS_LABELS: Record<CartStatus, string> = {
 
 /**
  * Build a clean, JSON-serializable design payload from the current design state.
+ * Includes shirt template dimensions needed for server-side mockup rendering.
  */
 export function buildDesignPayload(
   designState: DesignState,
@@ -59,7 +70,7 @@ export function buildDesignPayload(
     view: designState.view,
     shirtColor: designState.shirtColor,
     selectedSize: designState.selectedSize,
-    shopifyVariantId: shirtTemplate?.shopifyVariantIds?.[designState.selectedSize] ?? null,
+    shopifyVariantId: resolveVariantId(shirtTemplate?.shopifyVariantIds, designState.selectedSize),
     placedTemplates: designState.placedTemplates.map((placed) => {
       const tmpl = templates.find((t) => t.id === placed.templateId)
       return {
@@ -73,6 +84,20 @@ export function buildDesignPayload(
         imageUrl: tmpl?.image_url ?? '',
       }
     }),
+    // Include shirt template data for server-side rendering
+    shirtTemplate: shirtTemplate ? {
+      canvas_width: shirtTemplate.canvas_width,
+      canvas_height: shirtTemplate.canvas_height,
+      shirt_pixel_width: shirtTemplate.shirt_pixel_width,
+      shirt_pixel_height: shirtTemplate.shirt_pixel_height,
+      shirt_offset_x: shirtTemplate.shirt_offset_x,
+      shirt_offset_y: shirtTemplate.shirt_offset_y,
+      printable_x: shirtTemplate.printable_x,
+      printable_y: shirtTemplate.printable_y,
+      printable_width: shirtTemplate.printable_width,
+      printable_height: shirtTemplate.printable_height,
+      image_url: shirtTemplate.image_url,
+    } : undefined,
   }
 }
 
@@ -177,9 +202,13 @@ export async function handleAddToCartFlow(
 
     // Step 3: Redirect to Shopify cart
     onStatusChange('redirecting')
-    window.location.href = `${shopifyStoreUrl}/cart`
+    window.location.href = getCartUrl()
   } catch (err) {
     onStatusChange('error')
     throw err
   }
 }
+
+// Re-export Shopify config URL for backwards compatibility
+export { SHOPIFY_CONFIG as SHOPIFY_STORE_URL_CONFIG }
+export const SHOPIFY_STORE_URL = SHOPIFY_CONFIG.storeUrl
