@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Template, PlacedTemplate, DesignState, ShirtTemplate, ShirtSize } from '@/lib/types'
+import type { Template, PlacedTemplate, DesignState, ShirtTemplate, ShirtSize } from '@/lib/types'
 import { getStoredTemplates, getStoredShirtTemplates, generateId } from '@/lib/store'
 import { buildDesignPayload, handleAddToCartFlow, CartStatus } from '@/lib/cart'
 import { ShirtCanvas } from '@/components/designer/ShirtCanvas'
@@ -162,6 +162,13 @@ export default function DesignerPage() {
     toast.success('Design loaded!')
   }, [shirtTemplates])
 
+  const handleSizeChange = useCallback((size: ShirtSize) => {
+    setDesignState((prev) => ({
+      ...prev,
+      selectedSize: size,
+    }))
+  }, [])
+
   const handleClearDesign = useCallback(() => {
     setDesignState((prev) => ({
       ...prev,
@@ -288,11 +295,13 @@ export default function DesignerPage() {
               placedTemplates={designState.placedTemplates}
               templates={templates}
               shirtTemplate={selectedShirtTemplate}
+              selectedSize={designState.selectedSize}
               onUpdateTemplate={handleUpdateTemplate}
               onRemoveTemplate={handleRemoveTemplate}
               onResetPosition={handleResetPosition}
               onSaveDesign={handleSaveDesign}
               onAddToCart={handleAddToCart}
+              onSizeChange={handleSizeChange}
               cartStatus={cartStatus}
             />
           </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { PlacedTemplate, Template, ShirtTemplate } from '@/lib/types'
+import { PlacedTemplate, Template, ShirtTemplate, ShirtSize, SHIRT_SIZES, SHIRT_SIZE_LABELS } from '@/lib/types'
 import { CartStatus, CART_STATUS_LABELS } from '@/lib/cart'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -19,6 +19,8 @@ import {
   Info,
   ShoppingCart,
   Loader2,
+  Ruler,
+  AlertCircle,
 } from 'lucide-react'
 
 interface TemplateControlsProps {
@@ -26,11 +28,13 @@ interface TemplateControlsProps {
   placedTemplates: PlacedTemplate[]
   templates: Template[]
   shirtTemplate: ShirtTemplate | null
+  selectedSize: ShirtSize
   onUpdateTemplate: (id: string, updates: Partial<PlacedTemplate>) => void
   onRemoveTemplate: (id: string) => void
   onResetPosition: (id: string) => void
   onSaveDesign: () => void
   onAddToCart: () => void
+  onSizeChange: (size: ShirtSize) => void
   cartStatus: CartStatus
 }
 
@@ -39,17 +43,22 @@ export function TemplateControls({
   placedTemplates,
   templates,
   shirtTemplate,
+  selectedSize,
   onUpdateTemplate,
   onRemoveTemplate,
   onResetPosition,
   onSaveDesign,
   onAddToCart,
+  onSizeChange,
   cartStatus,
 }: TemplateControlsProps) {
   const selectedPlaced = placedTemplates.find((t) => t.id === selectedTemplateId)
   const selectedTemplate = selectedPlaced
     ? templates.find((t) => t.id === selectedPlaced.templateId)
     : null
+
+  // Check if the selected size has a Shopify variant configured
+  const hasVariantForSize = shirtTemplate?.shopifyVariantIds?.[selectedSize] != null
 
   return (
     <div className="flex flex-col h-full bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
@@ -81,6 +90,44 @@ export function TemplateControls({
               <div className="p-3 bg-secondary rounded-lg text-center">
                 <p className="text-sm text-muted-foreground">No product selected</p>
                 <p className="text-xs text-muted-foreground mt-1">Select one from the Products tab</p>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Size Selector */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Ruler className="w-4 h-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">Select Size</h3>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {SHIRT_SIZES.map((size) => {
+                const isAvailable = shirtTemplate?.shopifyVariantIds?.[size] != null
+                return (
+                  <Button
+                    key={size}
+                    variant={selectedSize === size ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onSizeChange(size)}
+                    className={`relative ${!isAvailable ? 'opacity-50' : ''}`}
+                    title={isAvailable ? SHIRT_SIZE_LABELS[size] : `${SHIRT_SIZE_LABELS[size]} - Not available`}
+                  >
+                    {size}
+                    {!isAvailable && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full" />
+                    )}
+                  </Button>
+                )
+              })}
+            </div>
+            {shirtTemplate && !hasVariantForSize && (
+              <div className="flex items-start gap-2 p-2 bg-destructive/10 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                <p className="text-xs text-destructive">
+                  Size {selectedSize} is not connected to Shopify. Configure a variant ID in the admin panel.
+                </p>
               </div>
             )}
           </div>
@@ -247,6 +294,7 @@ export function TemplateControls({
           disabled={
             !shirtTemplate ||
             placedTemplates.length === 0 ||
+            !hasVariantForSize ||
             (cartStatus !== 'idle' && cartStatus !== 'error')
           }
         >
